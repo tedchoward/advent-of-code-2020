@@ -1,17 +1,17 @@
+const SUM: usize = 2020;
+
 fn one_iteration(
     partial_sum: usize,
     partial_product: usize,
     slice: &[usize],
-    sum: usize,
     iterations_remaining: usize,
 ) -> Result<usize, String> {
-    for i in 0..slice.len() {
-        let num = slice[i];
+    for (i, num) in slice.iter().enumerate() {
         let partial_sum = partial_sum + num;
         let partial_product = partial_product * num;
 
         if iterations_remaining == 0 {
-            if partial_sum == sum {
+            if partial_sum == SUM {
                 return Ok(partial_product);
             }
         } else {
@@ -19,7 +19,6 @@ fn one_iteration(
                 partial_sum,
                 partial_product,
                 &slice[i..],
-                sum,
                 iterations_remaining - 1,
             ) {
                 Ok(product) => return Ok(product),
@@ -28,11 +27,11 @@ fn one_iteration(
         }
     }
 
-    Err(format!("No pairs found that add up to {}", sum))
+    Err(format!("No pairs found that add up to {}", SUM))
 }
 
-fn find_sum_parts(numbers: Vec<usize>, num_parts: usize, sum: usize) -> Result<usize, String> {
-    one_iteration(0, 1, &numbers[0..], sum, num_parts - 1)
+fn find_sum_parts(numbers: Vec<usize>, num_parts: usize) -> Result<usize, String> {
+    one_iteration(0, 1, &numbers, num_parts - 1)
 }
 
 fn load_input() -> Vec<usize> {
@@ -55,15 +54,18 @@ fn load_input() -> Vec<usize> {
 //     ]
 // }
 
+/// Find the first two numbers in the input that add up to `2020` and return
+/// their product
 fn puzzle_1() -> Result<usize, String> {
     let input = load_input();
-
-    find_sum_parts(input, 2, 2020)
+    find_sum_parts(input, 2)
 }
 
+/// Find the first three numbers in the input that add up to `2020` and return
+/// their product
 fn puzzle_2() -> Result<usize, String> {
     let input = load_input();
-    find_sum_parts(input, 3, 2020)
+    find_sum_parts(input, 3)
 }
 
 fn main() {
