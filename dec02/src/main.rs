@@ -46,23 +46,19 @@ impl Entry {
         let matches = self
             .password
             .matches(self.policy.letter)
-            .collect::<Vec<&str>>()
-            .len();
+            .count();
         matches >= self.policy.min && matches <= self.policy.max
     }
 
-    /// Gets a collection of 1-based indicies of all occurrences of 
-    /// `policy.letter` in `password`. Returns true if the index matches either
-    /// `policy.min` OR `policy.max`
+    /// Grabs the characters using `policy.max` and `policy.min` as 1-based 
+    /// indices. Returns true if the first character matches `policy.letter`
+    /// but not the second or vice-versa
     fn is_valid_new_rules(&self) -> bool {
-        let matches: Vec<_> = self
-            .password
-            .match_indices(self.policy.letter)
-            .map(|tuple| tuple.0)
-            .map(|idx| idx + 1)
-            .collect();
-        matches.contains(&self.policy.min) && !matches.contains(&self.policy.max)
-            || matches.contains(&self.policy.max) && !matches.contains(&self.policy.min)
+        let first_char = self.password.chars().nth(self.policy.min - 1).unwrap();
+        let last_char = self.password.chars().nth(self.policy.max - 1).unwrap();
+
+        first_char == self.policy.letter && last_char != self.policy.letter
+            || last_char == self.policy.letter && first_char != self.policy.letter
     }
 }
 
