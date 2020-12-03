@@ -50,7 +50,7 @@ impl Entry {
         matches >= self.policy.min && matches <= self.policy.max
     }
 
-    /// Grabs the characters using `policy.max` and `policy.min` as 1-based 
+    /// Grabs the characters using `policy.max` and `policy.min` as 1-based
     /// indices. Returns true if the first character matches `policy.letter`
     /// but not the second or vice-versa
     fn is_valid_new_rules(&self) -> bool {
