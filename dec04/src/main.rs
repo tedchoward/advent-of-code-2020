@@ -1,3 +1,6 @@
+#[macro_use]
+extern crate lazy_static;
+
 use regex::Regex;
 use std::collections::{HashMap, HashSet};
 
@@ -107,7 +110,13 @@ fn puzzle_2() -> u32 {
         ),
         FieldDefinition::new(
             "hcl",
-            make_callback(|value| Regex::new(r"^#[0-9,a-f]{6}$").unwrap().is_match(value)),
+            make_callback(|value| {
+                lazy_static! {
+                    static ref RE: Regex = Regex::new(r"^#[0-9,a-f]{6}$").unwrap();
+                }
+
+                RE.is_match(value)
+            }),
         ),
         FieldDefinition::new(
             "ecl",
@@ -115,7 +124,13 @@ fn puzzle_2() -> u32 {
         ),
         FieldDefinition::new(
             "pid",
-            make_callback(|value| Regex::new(r"^[0-9]{9}$").unwrap().is_match(value)),
+            make_callback(|value| {
+                lazy_static! {
+                    static ref RE:Regex = Regex::new(r"^[0-9]{9}$").unwrap();
+                }
+
+                RE.is_match(value)
+            }),
         ),
     ];
 

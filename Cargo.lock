@@ -25,6 +25,7 @@ version = "0.1.0"
 name = "dec04"
 version = "0.1.0"
 dependencies = [
+ "lazy_static",
  "regex",
 ]
 
