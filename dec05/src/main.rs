@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 fn load_input() -> Vec<String> {
     let input = std::fs::read_to_string("dec05/src/input.txt").expect("Unable to read input file");
 
@@ -44,39 +46,45 @@ fn get_seat_id(row: u32, column: u32) -> u32 {
     row * 8 + column
 }
 
-fn puzzle_1() -> u32 {
+fn both_puzzles() -> (u32, u32) {
+    let mut available_seats: HashSet<u32> = (0..1024).collect();
     let rows: Vec<u32> = (0..128).collect();
     let columns: Vec<u32> = (0..8).collect();
 
-    // let input = vec![
-    //     String::from("FBFBBFFRLR"),
-    //     String::from("BFFFBBFRRR"),
-    //     String::from("FFFBBBFRRR"),
-    //     String::from("BBFFBBFRLL"),
-    // ];
     let input = load_input();
 
     let mut highest_seat_id = 0;
 
     for boarding_pass in input {
         let row = find_row(&boarding_pass[0..7], &rows);
-        print!("Row: {}, ", row);
-
         let column = find_column(&boarding_pass[7..], &columns);
-        print!("Column: {}, ", column);
-
         let seat_id = get_seat_id(row, column);
-        println!("Seat Id: {}", seat_id);
+
+        available_seats.remove(&seat_id);
 
         if seat_id > highest_seat_id {
             highest_seat_id = seat_id
         }
     }
 
-    highest_seat_id
+    // The real available seat is not the first seat, and both seats on either
+    // side of it are occupied (i.e. not in the available_seats collection)
+    let available_seat = available_seats
+        .iter()
+        .filter(|seat_id| {
+            **seat_id > 0
+                && !available_seats.contains(&(**seat_id + 1))
+                && !available_seats.contains(&(**seat_id - 1))
+        })
+        .cloned()
+        .nth(0)
+        .unwrap();
+
+    (highest_seat_id, available_seat)
 }
 
 fn main() {
-    let result = puzzle_1();
-    println!("Puzzle 1 output: {}", result);
+    let (highest_seat_id, available_seat) = both_puzzles();
+    println!("Puzzle 1 output: {}", highest_seat_id);
+    println!("Puzzle 2 output: {}", available_seat);
 }
