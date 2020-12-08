@@ -2,7 +2,7 @@ fn load_input() -> String {
     std::fs::read_to_string("dec08/src/input.txt").expect("Unable to read input file")
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 struct Instruction<'a> {
     operation: &'a str,
     argument: i32,
@@ -23,31 +23,20 @@ impl<'a> Instruction<'a> {
     }
 }
 
-fn puzzle_1() -> i32 {
-    // let input = String::from("nop +0
-    // acc +1
-    // jmp +4
-    // acc +3
-    // jmp -3
-    // acc -99
-    // acc +1
-    // jmp -4
-    // acc +6");
+enum ExecutionResult {
+    Loop(i32),
+    Exit(i32),
+}
 
-    let input = load_input();
-
+fn execute(instructions: &[Instruction]) -> ExecutionResult {
+    let mut instructions = instructions.iter().cloned().collect::<Vec<Instruction>>();
     let mut accumulator = 0;
     let mut index = 0;
-
-    let mut instructions = input
-        .split('\n')
-        .map(Instruction::new)
-        .collect::<Vec<Instruction>>();
 
     while index < instructions.len() {
         let instruction = &mut instructions[index];
         if instruction.called {
-            break;
+            return ExecutionResult::Loop(accumulator);
         }
 
         instruction.called = true;
@@ -67,10 +56,61 @@ fn puzzle_1() -> i32 {
         }
     }
 
-    accumulator
+    ExecutionResult::Exit(accumulator)
+}
+
+fn puzzle_1() -> i32 {
+    let input = load_input();
+
+    let instructions = input
+        .split('\n')
+        .map(Instruction::new)
+        .collect::<Vec<Instruction>>();
+
+    match execute(&instructions) {
+        ExecutionResult::Loop(acc) => acc,
+        _ => panic!("Should cause loop"),
+    }
+}
+
+fn puzzle_2() -> i32 {
+    let input = load_input();
+
+    let instructions = input
+        .split('\n')
+        .map(Instruction::new)
+        .collect::<Vec<Instruction>>();
+    let mut changed_index = 0;
+
+    loop {
+        let mut instructions = instructions.iter().cloned().collect::<Vec<Instruction>>();
+        let (index, inst) = instructions[changed_index..]
+            .iter_mut()
+            .enumerate()
+            .find(|(_, i)| i.operation == "jmp" || i.operation == "nop")
+            .unwrap();
+
+        if inst.operation == "jmp" {
+            inst.operation = "nop";
+        } else {
+            inst.operation = "jmp";
+        }
+
+        changed_index += index + 1;
+
+        match execute(&instructions) {
+            ExecutionResult::Exit(acc) => {
+                return acc;
+            }
+            ExecutionResult::Loop(_) => (),
+        }
+    }
 }
 
 fn main() {
     let result = puzzle_1();
     println!("Puzzle 1 output: {}", result);
+
+    let result = puzzle_2();
+    println!("Puzzle 2 output: {}", result);
 }
