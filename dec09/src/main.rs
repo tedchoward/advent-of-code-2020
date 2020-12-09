@@ -30,6 +30,28 @@ fn find_invalid_number(input: &[u64]) -> u64 {
     panic!("All numbers are valid.");
 }
 
+fn find_contiguous_slice(input: &[u64], value: u64) -> &[u64] {
+    let input_size = input.len();
+
+    let mut start = 0;
+    let mut end = 1;
+    let mut sum = input[start] + input[end];
+
+    while end < input_size {
+        if sum > value {
+            sum -= input[start];
+            start += 1;
+        } else if sum == value {
+            return &input[start..=end];
+        } else {
+            end += 1;
+            sum += input[end];
+        }
+    }
+
+    panic!("No slice found that adds up to {}", value);
+}
+
 fn puzzle_1() -> u64 {
     let input = load_input();
 
@@ -41,34 +63,12 @@ fn puzzle_2() -> u64 {
 
     let invalid_number = find_invalid_number(&input);
 
-    for (index, num1) in input.iter().enumerate() {
-        let mut sum = *num1;
-        let mut min = sum;
-        let mut max = sum;
+    let contiguous_slice = find_contiguous_slice(&input, invalid_number);
 
-        for num2 in input.iter().skip(index + 1) {
-            let num2 = *num2;
-            if num2 < min {
-                min = num2;
-            }
+    let min = contiguous_slice.iter().min().unwrap();
+    let max = contiguous_slice.iter().max().unwrap();
 
-            if num2 > max {
-                max = num2;
-            }
-
-            sum += num2;
-
-            if sum == invalid_number {
-                return min + max;
-            }
-
-            if sum > invalid_number {
-                break;
-            }
-        }
-    }
-
-    panic!("Encryption weakness not found.");
+    min + max
 }
 
 fn main() {
