@@ -50,7 +50,8 @@ impl Scanner {
             self.scan_token();
         }
 
-        self.tokens.push(Token::new(TokenType::EOF, String::from(""), self.line));
+        self.tokens
+            .push(Token::new(TokenType::EOF, String::from(""), self.line));
         &self.tokens
     }
 
@@ -72,7 +73,7 @@ impl Scanner {
                 } else {
                     panic!("");
                 }
-            },
+            }
         }
     }
 
@@ -81,7 +82,9 @@ impl Scanner {
             self.advance();
         }
 
-        self.add_token(TokenType::Number(self.source[self.start..self.current].parse().unwrap()));
+        self.add_token(TokenType::Number(
+            self.source[self.start..self.current].parse().unwrap(),
+        ));
     }
 
     fn advance(&mut self) -> char {
@@ -91,7 +94,8 @@ impl Scanner {
 
     fn add_token(&mut self, token_type: TokenType) {
         let text = &self.source[self.start..self.current];
-        self.tokens.push(Token::new(token_type, String::from(text), self.line));
+        self.tokens
+            .push(Token::new(token_type, String::from(text), self.line));
     }
 
     fn peek(&self) -> char {

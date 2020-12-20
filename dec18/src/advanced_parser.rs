@@ -3,12 +3,12 @@ use crate::{
     scanner::{Token, TokenType},
 };
 
-pub struct Parser {
+pub struct AdvancedParser {
     tokens: Vec<Token>,
     current: usize,
 }
 
-impl Parser {
+impl AdvancedParser {
     pub fn new(tokens: &Vec<Token>) -> Self {
         Self {
             tokens: tokens.clone(),
@@ -21,11 +21,30 @@ impl Parser {
     }
 
     fn expression(&mut self) -> Expr {
+        let mut expr = self.addition();
+
+        loop {
+            match self.peek().token_type {
+                TokenType::Star => {
+                    self.advance();
+                    let operator = self.previous();
+                    let right = self.addition();
+
+                    expr = Expr::Binary(Box::new(expr), operator.clone(), Box::new(right));
+                }
+                _ => break,
+            }
+        }
+
+        expr
+    }
+
+    fn addition(&mut self) -> Expr {
         let mut expr = self.primary();
 
         loop {
             match self.peek().token_type {
-                TokenType::Plus | TokenType::Star => {
+                TokenType::Plus => {
                     self.advance();
                     let operator = self.previous();
                     let right = self.primary();
